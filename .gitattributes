@@ -1,0 +1,15 @@
+# Set the default behavior to let git automatically handle files (fallback if core.autocrlf isn't set).
+* text=auto
+
+# Whitelist of text files to convert to native line endings on checkout.
+*.css text
+*.html text
+*.md text
+
+# Declare files that will always have CRLF line endings on checkout.
+# *.sln text eol=crlf
+
+# Denote all files that are truly binary and should not be modified.
+*.png binary
+*.jpg binary
+*.svg binary
