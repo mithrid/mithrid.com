@@ -355,7 +355,7 @@ hr {
     width: 100%;
     position: relative;
     border-top: 70px solid #fff;
-    background: url(img/yummy.png) no-repeat top center;
+    background: url(img/yummy.webp) no-repeat top center;
     transform: rotate(25deg);
     background-size: 40%;
     height: 0;
