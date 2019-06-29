@@ -899,12 +899,16 @@ footer {
 /*
     Advising table with alternating-colored rows.
 */
-.advising-table {
+.consulting-table {
     margin: auto;
     width: 50% !important;
 }
-.advising-table > tbody > tr:nth-child(odd) > td,
-.advising-table > tbody > tr:nth-child(odd) > th {
+.consulting-table > tbody > tr:nth-child(odd) > td,
+.consulting-table > tbody > tr:nth-child(odd) > th {
     background-color: rgba(141, 81, 252, 0.5);
 
 }
+
+/*
+    Rapid Prototyping & Curriculum Design.
+ */
