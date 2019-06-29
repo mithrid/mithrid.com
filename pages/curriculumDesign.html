@@ -25,14 +25,18 @@ sectionTitle: Curriculum Design
                             <div class="tab-content" style="padding-top:20px">
 
                                 <!--result tab-->
-                                <div id="ccircle" class="tab-pane active service-icon">
-                                    <img src="/res/img/scenario01_easy.png" style="width: 100%; border-radius: 25px; border: 2px solid #c0c0c0">
-                                    <img src="/res/img/scenario02.png" style="width: 100%; border-radius: 25px; border: 2px solid #c0c0c0">
+                                <div id="ccircle" class="tab-pane active">
+                                    <img class="rounded-image" src="/res/img/scenario01_easy.png">
+                                    <img class="rounded-image" src="/res/img/scenario02.png">
                                 </div>
 
                                 <!--bts tab-->
                                 <div id="bts" class="tab-pane">
-                                    <p>TODO(Brendan)</p>
+                                    {% for image in site.static_files %}
+                                        {% if image.path contains 'res/img/coding_circle_onsite' %}
+                                            <img class="rounded-image" src="{{ site.baseurl }}{{ image.path }}" alt="image" />
+                                        {% endif %}
+                                    {% endfor %}
                                 </div>
                             </div>
                         </div>

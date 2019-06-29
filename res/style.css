@@ -912,3 +912,8 @@ footer {
 /*
     Rapid Prototyping & Curriculum Design.
  */
+.rounded-image {
+    width: 100%;
+    border-radius: 25px;
+    border: 2px solid #c0c0c0;
+}
