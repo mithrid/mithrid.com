@@ -520,32 +520,6 @@ hr {
 --- Contact
 ============================ */
 
-form#contact-form .form-group label {
-    text-align: left !important;
-    display: block;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    font-size: 12px;
-}
-
-form#contact-form input, form#contact-form select, form#contact-form textarea {
-    border-radius: 0;
-    border: 1px solid #eee;
-    -webkit-box-shadow: none;
-    box-shadow: none;
-}
-
-form#contact-form input:focus, form#contact-form select:focus, form#contact-form textarea:focus {
-    -webkit-box-shadow: 0 1px 2px rgba(0, 0, 0, .05);
-    box-shadow: 0 1px 2px rgba(0, 0, 0, .05);
-}
-
-.input-group-addon {
-    background-color: #fefefe;
-    border: 1px solid #eee;
-    border-radius: 0;
-}
-
 .widget-contact {
     text-align: center;
     padding-top: 5px;
@@ -902,7 +876,8 @@ footer p {
 }
 }
 
-/* Colors
+/*
+    Colors.
     TODO(Brendan): the CSS is a mess :)
 */
 a,.tp-caption a.btn:hover {
@@ -919,4 +894,17 @@ a,.tp-caption a.btn:hover {
 
 footer {
     background-color: rgb(141, 81, 252);
+}
+
+/*
+    Advising table with alternating-colored rows.
+*/
+.advising-table {
+    margin: auto;
+    width: 50% !important;
+}
+.advising-table > tbody > tr:nth-child(odd) > td,
+.advising-table > tbody > tr:nth-child(odd) > th {
+    background-color: rgba(141, 81, 252, 0.5);
+
 }
