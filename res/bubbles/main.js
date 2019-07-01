@@ -1,6 +1,6 @@
-var websitePurple = [261, 97, 65];
+var whiteHsl = [0, 0, 100];
 
 window.onload = function() {
-	drawText('Mithrid', [websitePurple]);
+	drawText('Mithrid', [whiteHsl]);
 	bounceBubbles();	
 };

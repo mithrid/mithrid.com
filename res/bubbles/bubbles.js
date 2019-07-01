@@ -5,44 +5,50 @@
 
 // Tuning vars for bubble movement.
 document.bubbleShape = 'circle';
-document.reassimilationLag = 0.40; // [0, 1.0]; larger = long time for bubbles to return to starting position.
-document.repelForce = 0.3; // (0.0, x)
-document.bounceReducer = 400; // larger -> bounces less -> smaller.
-document.sizeReducer = 4; // [0-5]; alphabet.js assigns Point sizes starting at 6, but some are too big.
-document.mouseRepelDistance = 40; // Distance at which the text begins to be repelled from cursor.
-document.resetAnimation = false; // Used to reset animation.
+document.reassimilationLag = 0.20; // [0, 1.0]; larger = long time for bubbles to return to starting position.
+document.repelForce = 1.0; // (0.0, x)
+document.bounceReducer = 100; // larger -> bounces less -> smaller.
+document.sizeReducer = -3; // [0-5]; alphabet.js assigns Point sizes starting at 6, but some are too big.
+document.mouseRepelDistance = 100; // Distance at which the text begins to be repelled from cursor.
 
 // Global vars.
-var canvas = $("#myCanvas");
-var canvasHeight = canvas.height();
-var canvasWidth = canvas.width();
-var ctx;
+var canvas = document.getElementById('mithridCanvas');
+var ctx = canvas.getContext('2d');
 var pointCollection;
+var text;
+var bubbleColors;
 
 // --------------------------------------- Entry point. Draw some text.
 
-function drawText(text, letterColorsHsl) {
-    // Validate name and letterColorsHsl parameters.
+function drawText(bubbleText, bubbleColorsHsl) {
+    // Validate parameters.
+    text = bubbleText;
+    bubbleColors = bubbleColorsHsl;
     if (text === undefined) {
         throw "Must specify text to draw."
     }
-    if (letterColorsHsl === undefined || !isObjectArray(letterColorsHsl) || letterColorsHsl.length === 0) {
-        throw "letterColorsHsl must be a non-empty array."
+    if (bubbleColors === undefined || !isObjectArray(bubbleColors) || bubbleColors.length === 0) {
+        throw "bubbleColors must be a non-empty array."
     }
-    updateCanvasDimensions();
 
+    initEventListeners();
+    draw();
+    updateBubblesForCanvas();
+}
+
+function updateBubblesForCanvas() {
     var g = [];
     var offset = 0;
     function addLetter(cc_hex, ix, letterCols) {
         if (isObjectArray(letterCols[0])) {
-            letterColorsHsl = letterCols;
+            bubbleColors = letterCols;
         } else if (typeof letterCols[0] === "number") {
-            letterColorsHsl = [letterCols];
+            bubbleColors = [letterCols];
         }
 
         if (document.alphabet.hasOwnProperty(cc_hex)) {
             var chr_data = document.alphabet[cc_hex].P;
-            var bc = letterColorsHsl[ix % letterColorsHsl.length];
+            var bc = bubbleColors[ix % bubbleColors.length];
 
             for (var i = 0; i < chr_data.length; ++i) {
                 point = chr_data[i];
@@ -64,60 +70,36 @@ function drawText(text, letterColorsHsl) {
         if (cc_hex !== "A20") { // See alphabet.js.
             col_ix++;
         }
-        addLetter(cc_hex, col_ix, letterColorsHsl);
+        addLetter(cc_hex, col_ix, bubbleColors);
     }
 
     for (var j = 0; j < g.length; j++) {
-        g[j].curPos.x = (canvasWidth / 2 - offset / 2) + g[j].curPos.x;
-        g[j].curPos.y = (canvasHeight / 2 - 180) + g[j].curPos.y;
-        g[j].originalPos.x = (canvasWidth / 2 - offset / 2) + g[j].originalPos.x;
-        g[j].originalPos.y = (canvasHeight / 2 - 180) + g[j].originalPos.y;
+        g[j].curPos.x = (canvas.width / 2 - offset / 2) + g[j].curPos.x;
+        g[j].curPos.y = (canvas.height / 2 - 180) + g[j].curPos.y;
+        g[j].originalPos.x = (canvas.width / 2 - offset / 2) + g[j].originalPos.x;
+        g[j].originalPos.y = (canvas.height / 2 - 180) + g[j].originalPos.y;
     }
 
     pointCollection = new PointCollection();
     pointCollection.points = g;
-    initEventListeners();
 }
 
 // --------------------------------------- Event Logic.
 
-$(window).mouseleave(function () {
-    document.resetAnimation = true;
-});
-
-$(window).mouseenter(function () {
-    document.resetAnimation = false;
-});
-
-function updateCanvasDimensions() {
-    canvasWidth = canvas.width();
-    canvasHeight = canvas.height();
-
-    draw();
-
-    setTimeout(function () {
-        updateCanvasDimensions();
-    }, 30);
-}
-
-function onMove(e) {
-    if (pointCollection) {
-        pointCollection.mousePos.set(e.pageX, e.pageY);
-    }
-}
-
-function onTouchMove(e) {
-    if (pointCollection) {
-        pointCollection.mousePos.set(e.targetTouches[0].pageX, e.targetTouches[0].pageY);
-    }
-}
-
 function initEventListeners() {
-    $(window).bind('resize', updateCanvasDimensions).bind('mousemove', onMove);
+    window.addEventListener('resize', onWindowResize, false);
+
+    $(window).bind('mousemove', function (e) {
+        if (pointCollection) {
+            pointCollection.mousePos.set(e.pageX, e.pageY);
+        }
+    });
 
     canvas.ontouchmove = function (e) {
         e.preventDefault();
-        onTouchMove(e);
+        if (pointCollection) {
+            pointCollection.mousePos.set(e.targetTouches[0].pageX, e.targetTouches[0].pageY);
+        }
     };
 
     canvas.ontouchstart = function (e) {
@@ -127,16 +109,36 @@ function initEventListeners() {
 
 // --------------------------------------- Draw.
 
-function draw(reset) {
-    // Get canvas.
-    var tmpCanvas = canvas.get(0);
-    if (tmpCanvas.getContext === null) {
-        return;
-    }
+// Reset canvas dimensions to size of client viewport.
+function updateCanvasDimensions() {
+    // Lookup the size the browser is displaying the canvas.
+    var displayWidth  = window.innerWidth;
+    var displayHeight = window.innerHeight;
 
-    // Clear 2D drawing area.
-    ctx = tmpCanvas.getContext('2d');
-    ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+    // Check if the canvas is not the same size.
+    if (canvas.width  !== displayWidth ||
+        canvas.height !== displayHeight) {
+
+        // Make the canvas the same size
+        canvas.width  = displayWidth;
+        canvas.height = displayHeight;
+    }
+}
+
+// Clears a particular part of the viewport for the canvas prior to a draw..
+function clearCanvas() {
+    updateCanvasDimensions();
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+}
+
+function onWindowResize() {
+    clearCanvas();
+    updateBubblesForCanvas();
+    draw();
+}
+
+function draw(reset) {
+    clearCanvas();
 
     if (pointCollection) {
         pointCollection.draw(document.bubbleShape, reset);
